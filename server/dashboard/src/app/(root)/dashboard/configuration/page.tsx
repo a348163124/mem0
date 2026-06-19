@@ -35,8 +35,10 @@ export default function ConfigurationPage() {
   const [llmProvider, setLlmProvider] = useState("");
   const [llmModel, setLlmModel] = useState("");
   const [llmApiKey, setLlmApiKey] = useState("");
+  const [llmBaseUrl, setLlmBaseUrl] = useState("");
   const [embedderProvider, setEmbedderProvider] = useState("");
   const [embedderModel, setEmbedderModel] = useState("");
+  const [embedderApiKey, setEmbedderApiKey] = useState("");
 
   const { data: config, isLoading: isPrefilling } = useApiQuery(
     async () => {
@@ -60,6 +62,7 @@ export default function ConfigurationPage() {
     if (!config) return;
     setLlmProvider((current) => current || config.llm?.provider || "");
     setLlmModel((current) => current || config.llm?.config?.model || "");
+    setLlmBaseUrl((current) => current || config.llm?.config?.base_url || "");
     setEmbedderProvider(
       (current) => current || config.embedder?.provider || "",
     );
@@ -76,10 +79,12 @@ export default function ConfigurationPage() {
         provider: llmProvider,
         model: llmModel,
         apiKey: llmApiKey,
+        baseUrl: llmBaseUrl,
       });
       const embedder = buildProviderConfig({
         provider: embedderProvider,
         model: embedderModel,
+        apiKey: embedderApiKey,
       });
 
       const newConfig: Record<string, unknown> = {
@@ -163,6 +168,18 @@ export default function ConfigurationPage() {
               disabled={!isAdmin}
             />
           </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Base URL</Label>
+            <Input
+              placeholder="https://api.openai.com/v1"
+              value={llmBaseUrl}
+              onChange={(e) => setLlmBaseUrl(e.target.value)}
+              disabled={!isAdmin}
+            />
+            <p className="text-xs text-onSurface-default-tertiary">
+              Leave empty for official OpenAI, or set an OpenAI-compatible relay URL for the LLM only.
+            </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -200,6 +217,19 @@ export default function ConfigurationPage() {
                 disabled={!isAdmin}
               />
             </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Embedding API Key</Label>
+            <Input
+              type="password"
+              placeholder="OpenAI official key for embeddings"
+              value={embedderApiKey}
+              onChange={(e) => setEmbedderApiKey(e.target.value)}
+              disabled={!isAdmin}
+            />
+            <p className="text-xs text-onSurface-default-tertiary">
+              Set this when embeddings should use a different key from the LLM provider.
+            </p>
           </div>
         </CardContent>
       </Card>

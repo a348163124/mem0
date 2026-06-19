@@ -3,6 +3,7 @@ type ProviderConfig = {
   config?: {
     model?: string;
     api_key?: string;
+    base_url?: string;
   };
 };
 
@@ -28,10 +29,12 @@ export const buildProviderConfig = ({
   provider,
   model,
   apiKey,
+  baseUrl,
 }: {
   provider: string;
   model: string;
   apiKey?: string;
+  baseUrl?: string;
 }) => {
   if (!provider) {
     return undefined;
@@ -42,6 +45,7 @@ export const buildProviderConfig = ({
     config: {
       model: model || undefined,
       api_key: apiKey || undefined,
+      base_url: baseUrl || undefined,
     },
   };
 };

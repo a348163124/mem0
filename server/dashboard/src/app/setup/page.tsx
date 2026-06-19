@@ -78,8 +78,10 @@ export default function SetupPage() {
   const [llmProvider, setLlmProvider] = useState("");
   const [llmModel, setLlmModel] = useState("");
   const [llmApiKey, setLlmApiKey] = useState("");
+  const [llmBaseUrl, setLlmBaseUrl] = useState("");
   const [embedderProvider, setEmbedderProvider] = useState("");
   const [embedderModel, setEmbedderModel] = useState("");
+  const [embedderApiKey, setEmbedderApiKey] = useState("");
   const [serverHasLlmKey, setServerHasLlmKey] = useState(false);
   const [providers, setProviders] = useState<BundledProviders | null>(null);
   const [initialLlmProvider, setInitialLlmProvider] = useState("");
@@ -123,11 +125,13 @@ export default function SetupPage() {
 
         const llmProv = config?.llm?.provider || "";
         const llmMod = config?.llm?.config?.model || "";
+        const llmUrl = config?.llm?.config?.base_url || "";
         const embProv = config?.embedder?.provider || "";
         const embMod = config?.embedder?.config?.model || "";
 
         setLlmProvider(llmProv);
         setLlmModel(llmMod);
+        setLlmBaseUrl(llmUrl);
         setEmbedderProvider(embProv);
         setEmbedderModel(embMod);
         setInitialLlmProvider(llmProv);
@@ -191,6 +195,8 @@ export default function SetupPage() {
 
     const dirty =
       !!llmApiKey ||
+      !!embedderApiKey ||
+      !!llmBaseUrl ||
       llmProvider !== initialLlmProvider ||
       llmModel !== initialLlmModel ||
       embedderProvider !== initialEmbedderProvider ||
@@ -207,12 +213,12 @@ export default function SetupPage() {
         provider: llmProvider,
         model: llmModel,
         apiKey: llmApiKey,
+        baseUrl: llmBaseUrl,
       });
       const embedder = buildProviderConfig({
         provider: embedderProvider,
         model: embedderModel,
-        apiKey:
-          llmApiKey && embedderProvider === llmProvider ? llmApiKey : undefined,
+        apiKey: embedderApiKey,
       });
 
       const payload: Record<string, unknown> = { version: "v1.1" };
@@ -222,6 +228,7 @@ export default function SetupPage() {
       await api.post(MEMORY_ENDPOINTS.CONFIGURE, payload);
       if (llmApiKey) setServerHasLlmKey(true);
       setLlmApiKey("");
+      setEmbedderApiKey("");
       setInitialLlmProvider(llmProvider);
       setInitialLlmModel(llmModel);
       setInitialEmbedderProvider(embedderProvider);
@@ -461,7 +468,21 @@ export default function SetupPage() {
                     className="font-mono text-sm"
                   />
                   <p className="text-xs text-onSurface-default-tertiary">
-                    Also used for the embedder when it shares the same provider.
+                    Used only for the LLM provider.
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="setup-llm-base-url">LLM Base URL</Label>
+                  <Input
+                    id="setup-llm-base-url"
+                    value={llmBaseUrl}
+                    onChange={(e) => setLlmBaseUrl(e.target.value)}
+                    placeholder="https://api.openai.com/v1"
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-onSurface-default-tertiary">
+                    Leave empty for official OpenAI, or set an OpenAI-compatible relay URL for the LLM only.
                   </p>
                 </div>
 
@@ -497,6 +518,21 @@ export default function SetupPage() {
                       className="font-mono text-sm"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="setup-embedder-api-key">Embedding API Key</Label>
+                  <Input
+                    id="setup-embedder-api-key"
+                    type="password"
+                    value={embedderApiKey}
+                    onChange={(e) => setEmbedderApiKey(e.target.value)}
+                    placeholder="OpenAI official key for embeddings"
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-onSurface-default-tertiary">
+                    Set this when embeddings should use a different key from the LLM provider.
+                  </p>
                 </div>
 
                 <p className="text-xs text-onSurface-default-tertiary">
