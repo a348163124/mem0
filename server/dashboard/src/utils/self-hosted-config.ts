@@ -3,7 +3,7 @@ type ProviderConfig = {
   config?: {
     model?: string;
     api_key?: string;
-    base_url?: string;
+    openai_base_url?: string;
   };
 };
 
@@ -45,7 +45,7 @@ export const buildProviderConfig = ({
     config: {
       model: model || undefined,
       api_key: apiKey || undefined,
-      base_url: baseUrl || undefined,
+      openai_base_url: baseUrl || undefined,
     },
   };
 };

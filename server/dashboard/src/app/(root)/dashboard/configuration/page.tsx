@@ -62,7 +62,7 @@ export default function ConfigurationPage() {
     if (!config) return;
     setLlmProvider((current) => current || config.llm?.provider || "");
     setLlmModel((current) => current || config.llm?.config?.model || "");
-    setLlmBaseUrl((current) => current || config.llm?.config?.base_url || "");
+    setLlmBaseUrl((current) => current || config.llm?.config?.openai_base_url || "");
     setEmbedderProvider(
       (current) => current || config.embedder?.provider || "",
     );

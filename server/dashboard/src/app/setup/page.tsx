@@ -125,7 +125,7 @@ export default function SetupPage() {
 
         const llmProv = config?.llm?.provider || "";
         const llmMod = config?.llm?.config?.model || "";
-        const llmUrl = config?.llm?.config?.base_url || "";
+        const llmUrl = config?.llm?.config?.openai_base_url || "";
         const embProv = config?.embedder?.provider || "";
         const embMod = config?.embedder?.config?.model || "";
 
