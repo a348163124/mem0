@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import time
+from copy import deepcopy
 from typing import Any, Dict, List, Optional
 
 import telemetry
@@ -216,6 +217,18 @@ def _redact_config(value: Any, key: str | None = None) -> Any:
     return value
 
 
+def _normalize_config_aliases(config: Dict[str, Any]) -> Dict[str, Any]:
+    normalized = deepcopy(config)
+    llm = normalized.get("llm")
+    if isinstance(llm, dict):
+        llm_config = llm.get("config")
+        if isinstance(llm_config, dict) and "base_url" in llm_config:
+            if llm_config.get("base_url") and not llm_config.get("openai_base_url"):
+                llm_config["openai_base_url"] = llm_config["base_url"]
+            llm_config.pop("base_url", None)
+    return normalized
+
+
 def _validate_bundled_providers(config: Dict[str, Any]) -> None:
     llm = config.get("llm")
     if isinstance(llm, dict) and (provider := llm.get("provider")) and provider not in BUNDLED_LLM_PROVIDERS:
@@ -319,6 +332,7 @@ def list_bundled_providers(_auth=Depends(verify_auth)):
 @app.post("/configure", summary="Configure Mem0")
 def set_config(config: Dict[str, Any], _auth=Depends(require_admin)):
     """Set memory configuration. Requires admin role."""
+    config = _normalize_config_aliases(config)
     _validate_bundled_providers(config)
     update_config(config)
     return {"message": "Configuration set successfully"}
